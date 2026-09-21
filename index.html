@@ -1,0 +1,391 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style><title>Fahrprüfung Fahrzeugcheck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+:root{
+  --bg:#eef1f6; --surface:#ffffff; --surface-2:#f5f7fa; --line:#dbe2ec;
+  --ink:#1b2430; --muted:#5c6b82; --accent:#2f5c9e; --accent-ink:#ffffff;
+  --good:#1f9d55; --good-bg:#e6f6ec; --bad:#d64545; --bad-bg:#fbeaea; --amber:#c9820f;
+  --ring:#2f5c9e33;
+  --f-disp:"Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body:"Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f141b; --surface:#171f2b; --surface-2:#131a24; --line:#2a3646;
+  --ink:#e9eef6; --muted:#96a6bd; --accent:#6aa4ee; --accent-ink:#0f141b;
+  --good:#43c47c; --good-bg:#12301f; --bad:#f0736f; --bad-bg:#331616; --amber:#e6a83a;
+  --ring:#6aa4ee33;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --surface:#171f2b; --surface-2:#131a24; --line:#2a3646;
+  --ink:#e9eef6; --muted:#96a6bd; --accent:#6aa4ee; --accent-ink:#0f141b;
+  --good:#43c47c; --good-bg:#12301f; --bad:#f0736f; --bad-bg:#331616; --amber:#e6a83a;
+  --ring:#6aa4ee33;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);
+  font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%;}
+.wrap{max-width:600px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;
+  padding-inline:16px;padding-block:0;}
+button{font-family:inherit;color:inherit;cursor:pointer}
+
+/* Header */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);
+  padding-block:12px 8px;}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand h1{font-family:var(--f-disp);font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  font-size:20px;margin:0;line-height:1}
+.brand .tag{font-size:11px;color:var(--muted);letter-spacing:.6px;text-transform:uppercase}
+.hud{display:flex;align-items:center;gap:10px;margin-top:10px}
+.bar{flex:1;height:8px;border-radius:6px;background:var(--line);overflow:hidden}
+.bar > i{display:block;height:100%;width:0;background:var(--accent);border-radius:6px;
+  transition:width .35s ease}
+.count{font-family:var(--f-disp);font-weight:600;font-size:15px;color:var(--muted);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.score{font-family:var(--f-disp);font-weight:700;font-size:15px;color:var(--accent);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* Generic surfaces */
+main{flex:1;padding-block:6px 20px;display:flex;flex-direction:column}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;
+  padding:20px;box-shadow:0 1px 2px #0000000a}
+.section-label{font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);
+  font-weight:600;margin:0 0 10px}
+
+/* Start screen */
+.lede{font-family:var(--f-disp);font-weight:600;font-size:30px;line-height:1.05;margin:14px 0 6px;
+  text-wrap:balance}
+.sub{color:var(--muted);margin:0 0 20px;max-width:52ch}
+.group{margin-bottom:20px}
+.seg{display:flex;gap:6px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:12px;padding:5px}
+.seg button{flex:1;border:0;background:transparent;border-radius:8px;padding:11px 8px;
+  font-weight:600;font-size:15px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);
+  box-shadow:0 1px 3px #0003}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;
+  padding:8px 14px;font-size:14px;font-weight:500;color:var(--ink)}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.start-btn{margin-top:6px;width:100%;border:0;border-radius:14px;background:var(--accent);
+  color:var(--accent-ink);font-family:var(--f-disp);font-weight:700;letter-spacing:.5px;
+  text-transform:uppercase;font-size:19px;padding:16px;box-shadow:0 4px 14px var(--ring)}
+.start-btn:active{transform:translateY(1px)}
+
+/* Question */
+.topic-pill{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--accent);background:var(--surface-2);
+  border:1px solid var(--line);border-radius:999px;padding:4px 10px;margin-bottom:12px}
+.qtext{font-family:var(--f-disp);font-weight:600;font-size:24px;line-height:1.15;margin:0;
+  text-wrap:balance}
+.imgframe{display:flex;justify-content:center;margin:16px 0 4px}
+.imgframe svg{width:120px;height:120px}
+.imgframe.wide svg{width:min(100%,260px);height:auto}
+
+/* MC options */
+.opts{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.opt{display:flex;align-items:center;gap:12px;text-align:left;width:100%;
+  border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:14px;
+  font-size:15.5px;line-height:1.35;transition:border-color .15s, background .15s}
+.opt .key{flex:none;width:26px;height:26px;border-radius:7px;background:var(--surface-2);
+  border:1px solid var(--line);display:grid;place-items:center;font-family:var(--f-disp);
+  font-weight:700;font-size:15px;color:var(--muted)}
+.opt:not(:disabled):hover{border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.correct{border-color:var(--good);background:var(--good-bg)}
+.opt.correct .key{background:var(--good);color:#fff;border-color:var(--good)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt.wrong .key{background:var(--bad);color:#fff;border-color:var(--bad)}
+
+/* Explanation */
+.explain{margin-top:16px;border-left:4px solid var(--accent);background:var(--surface-2);
+  border-radius:8px;padding:12px 14px;font-size:14.5px}
+.explain b{color:var(--accent)}
+
+/* Flashcard */
+.flashcard{transform-style:preserve-3d;transition:transform .18s ease;min-height:120px}
+.flip-hint{margin-top:16px;color:var(--muted);font-size:13.5px;display:flex;align-items:center;
+  gap:6px;justify-content:center}
+.answer{margin-top:2px;font-size:16px;line-height:1.55}
+.answer .ahead{font-family:var(--f-disp);font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;font-size:13px;color:var(--good);margin-bottom:6px}
+
+/* Bottom actions */
+.actions{display:flex;gap:10px;margin-top:20px}
+.btn{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:12px;
+  padding:14px;font-weight:600;font-size:16px;color:var(--ink)}
+.btn.primary{border:0;background:var(--accent);color:var(--accent-ink);
+  font-family:var(--f-disp);text-transform:uppercase;letter-spacing:.5px;font-size:18px}
+.btn.ghost{background:transparent}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.45;cursor:default}
+
+/* End screen */
+.result{align-items:center;text-align:center;display:flex;flex-direction:column;gap:6px}
+.ring{width:150px;height:150px;margin:8px auto 4px}
+.ring text{font-family:var(--f-disp);fill:var(--ink)}
+.result h2{font-family:var(--f-disp);font-size:28px;margin:6px 0 0}
+.result p{color:var(--muted);margin:0}
+
+:focus-visible{outline:3px solid var(--ring);outline-offset:2px;border-radius:8px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+@media (max-width:380px){ .lede{font-size:26px} .qtext{font-size:21px} }
+</style></head><body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Fahrzeugcheck B</h1>
+      <span class="tag">Teil A · Prüfung</span>
+    </div>
+    <div class="hud" id="hud" hidden>
+      <span class="count" id="count">1 / 1</span>
+      <div class="bar"><i id="barfill"></i></div>
+      <span class="score" id="score">0</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- START -->
+    <section id="start">
+      <p class="lede">Bereite dich auf die Fahrzeugkontrolle vor.</p>
+      <p class="sub">Prüfungsnahe Fragen, wie sie der Fahrprüfer bei Teil A stellt – von den Reifen bis zur Begutachtungsplakette. Wähle einen Modus und leg los.</p>
+
+      <div class="group">
+        <p class="section-label">Modus</p>
+        <div class="seg" id="segMode" role="group" aria-label="Modus">
+          <button data-mode="mc" aria-pressed="true">Multiple&nbsp;Choice</button>
+          <button data-mode="flash" aria-pressed="false">Karteikarten</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <p class="section-label">Themengebiet</p>
+        <div class="chips" id="chipsTopic"></div>
+      </div>
+
+      <div class="group">
+        <p class="section-label">Anzahl der Fragen</p>
+        <div class="chips" id="chipsLen">
+          <button class="chip" data-len="10" aria-pressed="false">10</button>
+          <button class="chip" data-len="20" aria-pressed="true">20</button>
+          <button class="chip" data-len="0" aria-pressed="false">Alle</button>
+        </div>
+      </div>
+
+      <button class="start-btn" id="startBtn">Quiz starten</button>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="quiz" hidden>
+      <div class="card">
+        <span class="topic-pill" id="qtopic"></span>
+        <div id="imgSlot"></div>
+        <div class="flashcard" id="flashcard">
+          <p class="qtext" id="qtext"></p>
+          <div id="mcSlot"></div>
+          <div id="flipSlot"></div>
+        </div>
+        <div id="explainSlot"></div>
+      </div>
+      <div class="actions" id="actions"></div>
+    </section>
+
+    <!-- END -->
+    <section id="end" hidden>
+      <div class="card result">
+        <svg class="ring" id="ring" viewBox="0 0 120 120" aria-hidden="true"></svg>
+        <h2 id="endTitle">Fertig!</h2>
+        <p id="endSub"></p>
+        <div class="actions" style="width:100%;margin-top:18px">
+          <button class="btn ghost" id="toMenu">Menü</button>
+          <button class="btn primary" id="again">Nochmal</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const QUESTIONS = [{"topic": "reifen", "q": "Wie viel Profiltiefe muss ein Sommerreifen mindestens haben?", "a": "Mindestens 1,6 mm, und zwar gleichmäßig über die ganze Lauffläche. Weniger ist verboten und verlängert vor allem bei Nässe den Bremsweg deutlich.", "opts": ["Mindestens 1,0 mm, gemessen nur in den Hauptrillen der Lauffläche", "Mindestens 2,0 mm, über die gesamte Breite des Reifens verteilt", "Mindestens 1,6 mm, gleichmäßig über die ganze Lauffläche verteilt", "Mindestens 3,0 mm, sonst gilt der Reifen bereits als abgefahren"], "correct": 2}, {"topic": "reifen", "q": "Wie viel Profiltiefe braucht ein Winterreifen (M&S), damit er als Winterreifen anerkannt wird?", "a": "Radialreifen mindestens 4 mm, Diagonalreifen mindestens 5 mm. Darunter gilt er nicht mehr als anerkannter Winterreifen.", "opts": ["Mindestens 1,6 mm, also gleich viel wie ein Sommerreifen", "Mindestens 4 mm bei Radialreifen (5 mm bei Diagonalreifen)", "Mindestens 3 mm, unabhängig von der Bauart des Reifens", "Mindestens 6 mm, sonst verliert er die M&S-Kennzeichnung"], "correct": 1}, {"topic": "reifen", "q": "In welchem Zeitraum gilt in Österreich die situative Winterreifenpflicht?", "a": "Von 1. November bis 15. April – aber nur bei winterlichen Fahrbahnverhältnissen (Schnee, Matsch, Eis).", "opts": ["Vom 1. Oktober bis 30. April, unabhängig vom aktuellen Wetter", "Vom 1. Dezember bis 1. März, durchgehend und verpflichtend", "Vom 1. November bis 31. März, bei jeder Fahrt vorgeschrieben", "Vom 1. November bis 15. April, aber nur bei winterlichen Verhältnissen"], "correct": 3}, {"topic": "reifen", "q": "Wo finden Sie den vorgeschriebenen Reifendruck für Ihr Fahrzeug?", "a": "Auf der Innenseite des Tankdeckels, oft auch am Türholm der Fahrertür und in der Betriebsanleitung. Kontrolle immer bei kaltem Reifen.", "opts": ["Eingeprägt auf der Seitenwand (Flanke) des jeweiligen Reifens", "Auf der Innenseite des Tankdeckels, am Türholm und in der Betriebsanleitung", "Im Zulassungsschein bzw. in der Zulassungsbescheinigung des Fahrzeugs", "Auf der Begutachtungsplakette an der Windschutzscheibe"], "correct": 1}, {"topic": "reifen", "q": "Warum soll der Reifendruck bei kaltem Reifen kontrolliert werden?", "a": "Weil sich die Luft beim Fahren erwärmt und ausdehnt – am warmen Reifen zeigt das Manometer einen zu hohen Wert an.", "opts": ["Weil das Ventil bei warmem Reifen undicht wird und Luft entweicht", "Weil kalte Reifen grundsätzlich weniger Luft brauchen als warme", "Weil sich die Luft beim Fahren ausdehnt – der Wert wäre sonst zu hoch", "Weil der Gummi kalt weicher ist und sich der Druck besser ablesen lässt"], "correct": 2}, {"topic": "reifen", "q": "Welche Folgen hat ein zu niedriger Reifendruck?", "a": "Schlechtere Bodenhaftung, stärkerer Verschleiß an den Reifenschultern (außen) und Gefahr eines Reifenplatzers durch Überhitzung.", "opts": ["Verstärkter Verschleiß in der Mitte der Lauffläche und unruhiger Geradeauslauf", "Ein kürzerer Bremsweg, dafür aber deutlich höherer Kraftstoffverbrauch", "Bessere Haftung bei Nässe, aber schnelleres Altern der Reifenflanke", "Schlechtere Haftung, Verschleiß an den Schultern und Gefahr eines Reifenplatzers"], "correct": 3}, {"topic": "reifen", "q": "Welche Folgen hat ein zu hoher Reifendruck?", "a": "Schlechtere Bodenhaftung und verstärkter Verschleiß in der Mitte der Lauffläche.", "opts": ["Schlechtere Bodenhaftung und verstärkter Verschleiß in der Mitte der Lauffläche", "Stärkerer Verschleiß an den beiden äußeren Reifenschultern", "Ein weicheres Fahrgefühl und ein deutlich längerer Bremsweg", "Höherer Rollwiderstand und dadurch ein spürbar höherer Verbrauch"], "correct": 0}, {"topic": "reifen", "q": "Was bedeutet die Reifenbezeichnung 205/55 R16 91V?", "a": "205 = Breite in mm; 55 = Höhe in % der Breite; R = Radialbauweise; 16 = Felgendurchmesser in Zoll; 91 = Tragfähigkeitskennzahl; V = Geschwindigkeitsindex.", "opts": ["205 mm Höhe, 55 mm Breite, 16 Zoll Felge, 91 km/h Höchsttempo, Version V", "20,5 cm Felge, 55 % Profil, Radialbauweise, 16 mm Breite, Klasse V", "205 mm Breite, 55 % Höhe der Breite, Radial, 16 Zoll Felge, Tragfähigkeit 91, Speed-Index V", "205 kg Tragfähigkeit, 55 mm Breite, Radial, 16 Zoll Felge, Klasse 91"], "correct": 2}, {"topic": "reifen", "q": "Wofür steht der Buchstabe am Ende der Reifenbezeichnung (z. B. T, H oder V)?", "a": "Für den Geschwindigkeitsindex – die höchste zulässige Geschwindigkeit des Reifens (z. B. T = 190, H = 210, V = 240 km/h).", "opts": ["Für die Tragfähigkeit, also das maximale Gewicht, das der Reifen tragen darf", "Für die höchste zulässige Geschwindigkeit (z. B. T = 190, H = 210, V = 240 km/h)", "Für die Bauart des Reifens, also Radial-, Diagonal- oder Gürtelreifen", "Für das Herstellungsjahr und die Produktionswoche (DOT-Nummer)"], "correct": 1}, {"topic": "reifen", "q": "In welcher Reihenfolge wechseln Sie ein Rad richtig?", "a": "Fahrzeug absichern (1. Gang/P, Handbremse, fester Boden), Radmuttern lockern, aufbocken, Rad tauschen, Muttern anschrauben, absenken, über Kreuz anziehen, nach einigen km nachziehen.", "opts": ["Aufbocken, Radmuttern ganz lösen, Rad tauschen, absenken, Muttern der Reihe nach anziehen", "Fahrzeug sichern, Muttern lockern, aufbocken, Rad tauschen, über Kreuz anziehen, später nachziehen", "Handbremse lösen, aufbocken, Muttern lockern, Rad tauschen und über Kreuz anziehen", "Muttern lockern, Rad abnehmen, dann Fahrzeug sichern, aufbocken und neu montieren"], "correct": 1}, {"topic": "reifen", "q": "Warum zieht man die Radmuttern über Kreuz an und zieht nach einigen Kilometern nach?", "a": "Damit das Rad gleichmäßig und plan an der Nabe anliegt und sich nicht verzieht. Das Nachziehen sichert den festen Sitz.", "opts": ["Damit man beim Anziehen weniger Kraft braucht als der Reihe nach", "Weil sich die Muttern sonst durch die Bremsenwärme von selbst lockern", "Damit das Rad gleichmäßig und plan an der Nabe anliegt und sich nicht verzieht", "Damit der Reifen im Betrieb gleichmäßig abgenützt wird und rund läuft"], "correct": 2}, {"topic": "reifen", "q": "Wo werden Wagenheber, Bordwerkzeug und Reserverad üblicherweise mitgeführt?", "a": "Meistens im Kofferraum, oft unter dem Kofferraumboden in einer eigenen Mulde – zusammen mit dem Reserverad bzw. der Pannen-Dose.", "opts": ["Im Motorraum, neben der Batterie und dem Ausgleichsbehälter", "Im Handschuhfach und im Ablagefach der Fahrertür", "Unter den Vordersitzen und in der Mittelkonsole", "Meistens im Kofferraum, oft unter dem Kofferraumboden in einer Mulde"], "correct": 3}, {"topic": "reifen", "q": "Was bewirken fehlende Wuchtgewichte an einem Rad?", "a": "Ein Flattern der Lenkung, weil das Rad mit Unwucht läuft.", "opts": ["Einen ungleichmäßigen Verschleiß nur an einer Reifenschulter", "Ein Flattern der Lenkung, weil das Rad mit Unwucht läuft", "Ein Ziehen des Fahrzeugs zu einer Seite beim Bremsen", "Einen erhöhten Rollwiderstand und dadurch spürbar mehr Verbrauch"], "correct": 1}, {"topic": "bremsen", "q": "Was prüfen Sie bei der Standbremsprobe am Bremspedal (Totgang)?", "a": "Nach ca. 2–3 cm Leerweg muss ein fester Widerstand kommen; das Pedal darf sich dann nicht weiter durchtreten lassen.", "opts": ["Das Pedal muss sich weich bis knapp über den Boden durchtreten lassen", "Nach etwa der Hälfte des Weges soll das Pedal leicht federnd nachgeben", "Nach ca. 2–3 cm Leerweg muss ein fester Widerstand da sein; kein weiteres Durchsacken", "Das Pedal darf keinen Leerweg haben und muss sofort blockieren"], "correct": 2, "img": "pedal"}, {"topic": "bremsen", "q": "Wie führen Sie die Dichtheitsprobe der Bremsanlage durch?", "a": "Das Bremspedal etwa 30 Sekunden fest durchgetreten halten – es darf dabei nicht nachgeben. Gibt es langsam nach, ist die Anlage undicht.", "opts": ["Das Bremspedal mehrmals kräftig antippen und dabei auf ein Zischen achten", "Das Bremspedal ca. 30 Sekunden fest durchgetreten halten – es darf nicht nachgeben", "Bei laufendem Motor das Pedal so lange pumpen, bis es sich nach oben zieht", "Die Handbremse anziehen und beobachten, ob das Fahrzeug stehen bleibt"], "correct": 1}, {"topic": "bremsen", "q": "Das Bremspedal lässt sich bis zur Bodenplatte durchtreten. Was bedeutet das und was tun Sie?", "a": "Beide Bremskreise sind defekt – keine Weiterfahrt, das Fahrzeug muss abgeschleppt werden.", "opts": ["Nur ein Bremskreis ist undicht – langsame Weiterfahrt bis zur Werkstatt ist erlaubt", "Der Bremskraftverstärker arbeitet normal, die Bremse ist völlig in Ordnung", "Es ist zu viel Bremsflüssigkeit im Behälter – etwas ablassen genügt", "Beide Bremskreise sind defekt – keine Weiterfahrt, Fahrzeug abschleppen lassen"], "correct": 3}, {"topic": "bremsen", "q": "Das Bremspedal lässt sich nur bis etwa zur Hälfte durchdrücken. Was bedeutet das?", "a": "Nur ein Bremskreis ist undicht – Weiterfahrt mit verringerter Geschwindigkeit bis zum nächsten Mechaniker ist möglich.", "opts": ["Beide Bremskreise sind ausgefallen – sofort anhalten und abschleppen lassen", "Nur ein Bremskreis ist undicht – Weiterfahrt mit verringerter Geschwindigkeit möglich", "Der Totgang ist zu groß eingestellt und muss nachjustiert werden", "Die Bremsbeläge sind fabriksneu und müssen erst eingebremst werden"], "correct": 1}, {"topic": "bremsen", "q": "Wie überprüfen Sie den Bremskraftverstärker?", "a": "Bei abgestelltem Motor mehrmals pumpen, dann Pedal fest halten und Motor starten – das Pedal muss sich um ca. 2 cm nach unten ziehen.", "opts": ["Bei abgestelltem Motor mehrmals pumpen, Pedal halten, Motor starten – Pedal senkt sich ~2 cm", "Bei laufendem Motor das Pedal 30 Sekunden halten und auf ein Nachgeben achten", "Im Fahren aus 50 km/h bremsen und prüfen, ob das Fahrzeug gerade steht", "Das Pedal bei ausgeschalteter Zündung treten und den Leerweg abmessen"], "correct": 0}, {"topic": "bremsen", "q": "Warum hat der Bremsflüssigkeitsbehälter zwei Kammern?", "a": "Weil es zwei getrennte Bremskreise gibt. Fällt einer aus, bremst der andere noch. Der Stand soll in beiden gleich und zwischen MIN und MAX sein.", "opts": ["Damit man Sommer- und Winterbremsflüssigkeit getrennt einfüllen kann", "Weil eine Kammer die Bremse und die andere die Kupplung versorgt", "Weil es zwei getrennte Bremskreise gibt – fällt einer aus, bremst der andere noch", "Damit bei Undichtheit die eingedrungene Luft nach oben entweichen kann"], "correct": 2}, {"topic": "bremsen", "q": "Warum sollten Sie Bremsflüssigkeit nicht einfach selbst nachfüllen?", "a": "Weil zu wenig Flüssigkeit auf abgenützte Bremsbeläge oder eine Undichtheit hinweist – das gehört in die Fachwerkstätte.", "opts": ["Weil Bremsflüssigkeit stark giftig ist und nur mit Schutzausrüstung erlaubt wäre", "Weil man dafür ein Spezialwerkzeug braucht, um den Behälter zu öffnen", "Weil frische Flüssigkeit erst aufwendig entlüftet werden muss, bevor sie wirkt", "Weil zu wenig Flüssigkeit auf abgenützte Beläge oder Undichtheit hinweist – ab in die Werkstatt"], "correct": 3}, {"topic": "bremsen", "q": "In welchem Abstand soll die Bremsflüssigkeit getauscht werden und warum?", "a": "Etwa alle 2 Jahre, weil sie mit der Zeit Wasser aufnimmt und dadurch bei starkem Bremsen an Wirkung verliert.", "opts": ["Alle 5 Jahre, weil sie sich durch den Abrieb der Bremsbeläge verfärbt", "Etwa alle 2 Jahre, weil sie Wasser aufnimmt und dann an Bremswirkung verliert", "Jedes Jahr, weil sie durch die Hitze der Bremsscheiben langsam verdampft", "Nur bei einem Belagwechsel, sonst hält sie ein Fahrzeugleben lang"], "correct": 1}, {"topic": "bremsen", "q": "Wie und wozu führen Sie die Rollbremsprobe durch?", "a": "Bei ca. 10 km/h kräftig bremsen: Das Fahrzeug muss ruckartig zum Stillstand kommen und das Lenkrad darf nach keiner Seite ziehen – so bremsen beide Seiten gleich.", "opts": ["Bei ca. 50 km/h eine Vollbremsung machen und den Bremsweg nachmessen", "Im Stand das Pedal 30 Sekunden lang treten und auf Nachgeben achten", "Bei ca. 10 km/h kräftig bremsen – ruckartiger Stillstand, das Lenkrad darf nicht ziehen", "Rückwärts langsam rollen lassen und dabei die Handbremse prüfen"], "correct": 2}, {"topic": "bremsen", "q": "Wie führen Sie die Fahrbremsprobe durch und wie lang darf der Bremsweg sein?", "a": "Aus ca. 50 km/h auf trockener, griffiger Straße voll bremsen. Der Bremsweg darf höchstens rund 25 m betragen (mit guter Bremsanlage ca. 12,5 m).", "opts": ["Aus ca. 50 km/h auf trockener Straße voll bremsen; Bremsweg höchstens rund 25 m", "Aus ca. 100 km/h bremsen; der Bremsweg darf bis zu 50 m lang sein", "Aus ca. 30 km/h bremsen; der Bremsweg darf höchstens 5 m betragen", "Aus ca. 10 km/h bremsen; entscheidend ist nur, dass das Auto nicht zieht"], "correct": 0}, {"topic": "bremsen", "q": "Wie prüfen Sie die Feststellbremse (Handbremse)?", "a": "Spiel von 3–5 Rastpunkten. Anfahrprobe im 1. Gang: Der Motor muss absterben und das Fahrzeug darf sich nicht bewegen. Auch die Kontrollleuchte muss funktionieren.", "opts": ["Beliebig viele Rastpunkte; beim Anfahren darf sich das Auto langsam bewegen", "Spiel von 3–5 Rastpunkten; Anfahrprobe im 1. Gang – der Motor muss absterben", "Eine Sichtprüfung des Hebels genügt, eine Fahrprobe ist nicht nötig", "Im Fahren bei 20 km/h anziehen und prüfen, ob das Fahrzeug abbremst"], "correct": 1}, {"topic": "bremsen", "q": "Wie können Sie die Bremslichter allein kontrollieren?", "a": "Bremspedal treten und den Widerschein an einer Wand, einem Garagentor oder über die Reflexion im Rückspiegel bzw. an geparkten Autos beobachten.", "opts": ["Das ist allein nicht möglich – dafür braucht man immer eine zweite Person", "Die Zündung einschalten und im Armaturenbrett auf eine eigene Kontrollleuchte achten", "Bremspedal treten und den Widerschein an einer Wand oder im Rückspiegel beobachten", "Das Warnblinklicht einschalten und prüfen, ob hinten alle Leuchten kommen"], "correct": 2}, {"topic": "beleuchtung", "q": "Wie schalten Sie das Fernlicht ein und woran erkennen Sie, dass es leuchtet?", "a": "Abblendlicht (Stufe 3) einschalten und den Blinkerhebel nach vorne drücken. Die blaue Fernlicht-Kontrollleuchte im Armaturenbrett zeigt an, dass es leuchtet.", "opts": ["Abblendlicht einschalten und den Lichtschalter eine Raste ziehen; eine grüne Leuchte erscheint", "Den Blinkerhebel zu sich ziehen; eine gelbe Kontrollleuchte im Tacho leuchtet auf", "Den Lichtschalter auf Stufe 2 drehen; das Fernlicht schaltet dann automatisch zu", "Abblendlicht einschalten und den Blinkerhebel nach vorne drücken; blaue Kontrollleuchte"], "correct": 3, "img": "highbeam"}, {"topic": "beleuchtung", "q": "Wie weit müssen Abblendlicht und Fernlicht mindestens leuchten?", "a": "Abblendlicht: ausreichend weit, ohne den Gegenverkehr zu blenden. Fernlicht: ca. 300 m.", "opts": ["Abblendlicht: rund 300 m; Fernlicht: so weit, ohne zu blenden", "Beide jeweils etwa 100 m, unabhängig vom Gegenverkehr", "Abblendlicht: so weit, ohne den Gegenverkehr zu blenden; Fernlicht: etwa 300 m", "Abblendlicht: etwa 50 m; Fernlicht: etwa 150 m"], "correct": 2}, {"topic": "beleuchtung", "q": "Was kontrollieren Sie am Zustand der Scheinwerfer und Leuchten?", "a": "Gläser auf Verschmutzung und Beschädigung prüfen, und ob die Reflektoren sauber sind.", "opts": ["Nur, ob die Lampen bei jeder Stufe leuchten und die richtige Farbe haben", "Gläser auf Verschmutzung und Beschädigung sowie die Sauberkeit der Reflektoren", "Die Wattzahl der Lampen und ob sie zum jeweiligen Fahrzeugtyp passen", "Ob die Leuchtweite exakt eingestellt und die Blinkfrequenz korrekt ist"], "correct": 1}, {"topic": "beleuchtung", "q": "Welche Leuchten hinten leuchten bei jeder eingeschalteten Lichtstufe?", "a": "Die Schlussleuchten und die Kennzeichenbeleuchtung leuchten bei jeder Lichtstufe.", "opts": ["Die Nebelschlussleuchte und der Rückfahrscheinwerfer", "Die Bremsleuchten und die Blinkleuchten", "Die Schlussleuchten und die Kennzeichenbeleuchtung", "Nur die Schlussleuchten, und das erst ab dem Abblendlicht"], "correct": 2}, {"topic": "beleuchtung", "q": "Wann leuchtet der Rückfahrscheinwerfer?", "a": "Sobald der Rückwärtsgang (Retourgang) eingelegt ist.", "opts": ["Sobald man beim Rückwärtsstehen zusätzlich das Bremspedal tritt", "Wenn man den Lichtschalter zwei Rasten herauszieht", "Wenn die Alarmblinkanlage eingeschaltet ist", "Sobald der Rückwärtsgang (Retourgang) eingelegt ist"], "correct": 3}, {"topic": "beleuchtung", "q": "Wie schalten Sie die Nebelschlussleuchte ein und wann darf sie verwendet werden?", "a": "Abblendlicht (Stufe 3) einschalten und den Lichtschalter zwei Rasten herausziehen. Nur bei Sichtweite unter 50 m verwenden.", "opts": ["Abblendlicht einschalten und den Lichtschalter eine Raste ziehen; erlaubt bei jedem Regen", "Abblendlicht einschalten und den Lichtschalter zwei Rasten ziehen; nur bei Sicht unter 50 m", "Den Blinkerhebel nach vorne drücken; erlaubt bereits in der Dämmerung", "Sie schaltet sich automatisch mit dem Fernlicht ein, sobald es dunkel wird"], "correct": 1}, {"topic": "beleuchtung", "q": "Wozu dient der Leuchtweitenregler am Armaturenbrett?", "a": "Zum Anpassen der Leuchtweite des Abblendlichts – bei schwerer Ladung wird sie verkürzt, damit der Gegenverkehr nicht geblendet wird.", "opts": ["Zum Absenken des Abblendlichts bei schwerer Ladung, damit niemand geblendet wird", "Zum stufenlosen Dimmen der Instrumentenbeleuchtung bei Nachtfahrten", "Zum Umschalten zwischen Abblend- und Fernlicht ohne den Blinkerhebel", "Zum getrennten Einschalten der Nebelscheinwerfer vorne"], "correct": 0}, {"topic": "signal", "q": "Welche Einrichtungen müssen auch ohne eingeschaltete Zündung funktionieren?", "a": "Hupe, Lichthupe und Alarmblinkanlage müssen auch ohne Zündung funktionieren.", "opts": ["Blinker, Bremslicht und Fernlicht", "Scheibenwischer, Hupe und Warnblinkanlage", "Hupe, Lichthupe und Alarmblinkanlage", "Nur die Alarmblinkanlage – alles andere braucht die Zündung"], "correct": 2}, {"topic": "signal", "q": "Wo befindet sich die Lichthupe und wie prüfen Sie ihre Funktion?", "a": "Am Blinkerhebel. Zur Kontrolle den Hebel zu sich ziehen und wieder loslassen. Verwendung: wenn es die Verkehrssicherheit erfordert, ohne zu blenden.", "opts": ["Am Lichtschalter – zur Kontrolle eine Raste herausziehen und zurückdrücken", "In der Mitte des Lenkrads – zur Kontrolle kurz darauf drücken", "Am Blinkerhebel – zur Kontrolle den Hebel nach vorne drücken und dort halten", "Am Blinkerhebel – zur Kontrolle den Hebel zu sich ziehen und wieder loslassen"], "correct": 3}, {"topic": "signal", "q": "Wann dürfen Sie die Hupe verwenden?", "a": "Nur wenn es die Verkehrssicherheit erfordert und wo kein Hupverbot besteht. Zur Kontrolle kurz betätigen.", "opts": ["Um Bekannte zu begrüßen oder auf sich aufmerksam zu machen", "Nur wenn es die Verkehrssicherheit erfordert und kein Hupverbot besteht", "Immer beim Anfahren und beim Einbiegen aus einer Ausfahrt", "Innerorts jederzeit, außerorts nur bei einer konkreten Gefahr"], "correct": 1}, {"topic": "signal", "q": "In welchen Situationen verwenden Sie die Alarmblinkanlage (Warnblinker)?", "a": "Bei stehendem Fahrzeug (Panne, Unfall, zu- oder aussteigende Kinder beim Schülertransport) und bei fahrendem Fahrzeug, um nachkommende Lenker vor einer Gefahr zu warnen.", "opts": ["Bei Panne oder Unfall, beim Schülertransport und um andere vor einer Gefahr zu warnen", "Beim normalen Parken am Fahrbahnrand und beim kurzen Halten in zweiter Spur", "Statt des Blinkers beim Abbiegen an unübersichtlichen Kreuzungen", "Bei Regen und Nebel, um vom Gegenverkehr besser gesehen zu werden"], "correct": 0}, {"topic": "lenkung", "q": "Wie prüfen Sie das Lenkspiel (den Totgang der Lenkung)?", "a": "Lenkrad bei geöffnetem Fenster leicht nach links und rechts drehen und die Vorderräder beobachten. Das Spiel darf max. 2–3 Fingerbreiten betragen, bei modernen PKW praktisch 0.", "opts": ["Lenkrad bei laufendem Motor ganz einschlagen und auf ein Geräusch achten", "Lenkrad bei offenem Fenster leicht hin- und herdrehen; Spiel höchstens 2–3 Fingerbreiten", "Das Lenkrad einmal voll drehen und zählen, wie oft es dabei einrastet", "Im Fahren kurz die Hände loslassen und prüfen, ob das Auto geradeaus läuft"], "correct": 1}, {"topic": "lenkung", "q": "Was prüfen Sie bei der Servolenkung?", "a": "Den Stand des Servo-Öls laut Betriebsanleitung (meist bei laufendem Motor); er soll zwischen Min und Max liegen. Manche Autos haben eine elektromechanische Lenkhilfe.", "opts": ["Den vorderen Reifendruck, weil er die Lenkung direkt beeinflusst", "Ob sich das Lenkrad bei abgestelltem Motor besonders leicht drehen lässt", "Den Stand des Servo-Öls laut Betriebsanleitung – zwischen Min und Max", "Den Keilriemen, der bei jedem Auto ausschließlich die Lenkung antreibt"], "correct": 2}, {"topic": "lenkung", "q": "Was können Ursachen für ein Flattern der Lenkung sein?", "a": "Unwucht der Räder oder verlorene Wuchtgewichte, verstellte Lenkgeometrie oder lockere Radmuttern.", "opts": ["Zu viel Servo-Öl im Behälter oder ein zu locker gespannter Keilriemen", "Ein einseitig zu hoher Reifendruck oder starker Seitenwind von der Seite", "Abgenützte Bremsbeläge oder Luft in einer der Bremsleitungen", "Unwucht oder verlorene Wuchtgewichte, verstellte Lenkgeometrie oder lockere Radmuttern"], "correct": 3}, {"topic": "lenkung", "q": "Wodurch kann ein Ziehen der Lenkung zu einer Seite entstehen?", "a": "Veränderte Radeinstellung (z. B. durch Anfahren an einen Randstein), starker Seitenwind, Spurrinnen oder ungleicher Rollwiderstand durch ungleichen Luftdruck bzw. Schneematsch auf einer Seite.", "opts": ["Zu wenig Bremsflüssigkeit oder ein defekter Bremskraftverstärker an der Vorderachse", "Ungleiche Radeinstellung oder ungleicher Luftdruck, Seitenwind, Spurrinnen, einseitiger Matsch", "Eine Unwucht der Räder, die sich erst bei höherem Tempo als Vibrieren bemerkbar macht", "Ein zu großes Lenkspiel und ein locker sitzendes Lenkrad mit hörbarem Klappern"], "correct": 1}, {"topic": "lenkung", "q": "Worauf deutet ein ungleichmäßig abgenütztes Reifenbild an der Lenkung hin?", "a": "Auf eine verstellte Lenkgeometrie, z. B. durch Anfahren an den Gehsteig. Bei erkennbar ungleicher Abnützung in die Fachwerkstätte.", "opts": ["Auf eine verstellte Lenkgeometrie, z. B. durch Anfahren an einen Randstein", "Auf einen dauerhaft zu hohen Reifendruck an allen vier Rädern", "Auf abgenützte Stoßdämpfer an der Hinterachse", "Auf einen zu locker gespannten Keilriemen im Motorraum"], "correct": 0}, {"topic": "sicht", "q": "Welche Funktionen hat der Scheibenwischerhebel vorne?", "a": "Stufe 1 Intervall (regulierbar), Stufe 2 Dauerbetrieb langsam, Stufe 3 Dauerbetrieb schnell. Hebel ziehen: Waschanlage vorne.", "opts": ["Stufe 1 langsam, Stufe 2 schnell, Stufe 3 Waschanlage; Ziehen schaltet die Heckscheibe", "Nur eine Ein-/Aus-Stellung; das Tempo regelt sich automatisch nach dem Regen", "Stufe 1 Intervall, Stufe 2 langsam, Stufe 3 schnell; Ziehen aktiviert die Waschanlage vorne", "Stufe 1 vorne, Stufe 2 hinten, Stufe 3 beide Scheiben gleichzeitig"], "correct": 2}, {"topic": "sicht", "q": "Wozu dient die Heckscheibenheizung und was ist zu beachten?", "a": "Sie heizt die Heckscheibe elektrisch auf – gegen Beschlag von innen und zum Abtauen von Schnee/Eis. Wegen des hohen Strombedarfs nicht unnötig eingeschaltet lassen.", "opts": ["Sie heizt den gesamten Innenraum auf und darf nur bei laufendem Motor eingeschaltet werden", "Sie heizt die Scheibe elektrisch – gegen Beschlag und Eis; wegen hohem Verbrauch nicht unnötig anlassen", "Sie taut nur die beiden Außenspiegel ab und ist mit deren Spiegelheizung fest gekoppelt", "Sie trocknet die Frontscheibe und läuft immer gemeinsam mit dem Gebläse der Lüftung"], "correct": 1}, {"topic": "sicht", "q": "Was füllen Sie im Sommer und im Winter in die Scheibenwaschanlage?", "a": "Im Sommer Reinigungsmittel, im Winter Frostschutz – damit Flüssigkeit und Düsen nicht einfrieren.", "opts": ["Im Sommer Reinigungsmittel, im Winter Frostschutz, damit nichts einfriert", "Ganzjährig nur klares Leitungswasser, im Winter etwas wärmer eingefüllt", "Im Sommer Frostschutz gegen Verdunstung, im Winter reines Wasser", "Im Sommer Kühlmittel, im Winter Bremsflüssigkeit als Frostschutz"], "correct": 0}, {"topic": "fluessig", "q": "Wie kontrollieren Sie den Motorölstand richtig?", "a": "Auf ebener Fläche bei abgestelltem Motor 3–5 min warten, Messstab herausziehen und abwischen, ganz einführen, wieder herausziehen und ablesen – der Stand soll zwischen MIN und MAX benetzt sein.", "opts": ["Bei laufendem Motor den Messstab herausziehen und sofort den Wert ablesen", "Gleich nach der Fahrt am warmen Motor ablesen, ohne den Stab abzuwischen", "Bei leichter Steigung den Stab einmal herausziehen und den obersten Ölrand ablesen", "Motor aus, eben stehen, 3–5 min warten, Stab abwischen, einführen, herausziehen, ablesen"], "correct": 3}, {"topic": "fluessig", "q": "Was droht bei zu wenig Motoröl oder Kühlflüssigkeit?", "a": "Ein 'Kolbenreiber' – der Motor läuft heiß/fest, die Antriebsräder können blockieren und das Fahrzeug kann ausbrechen. Sofort anhalten.", "opts": ["Der Motor verliert nur etwas Leistung und braucht mehr Kraftstoff", "Ein Kolbenreiber – der Motor läuft fest, die Antriebsräder können blockieren", "Die Batterie entlädt sich, weil die Lichtmaschine stärker arbeiten muss", "Die Bremsen werden heiß und verlieren kurzzeitig ihre Wirkung"], "correct": 1}, {"topic": "fluessig", "q": "Was prüfen Sie bei der Kühlflüssigkeit besonders im Herbst?", "a": "Den Frostschutz, damit das Kühlsystem im Winter nicht einfriert. Der Stand soll zwischen MIN und MAX liegen.", "opts": ["Den Frostschutz, damit das Kühlsystem im Winter nicht einfriert", "Die Farbe, weil frisches Kühlmittel immer grün sein muss", "Den Reinigungsmittelanteil, damit die Scheiben sauber bleiben", "Den Ölanteil, weil sich Öl und Kühlmittel im Herbst vermischen"], "correct": 0}, {"topic": "fluessig", "q": "Was ist die Sofortmaßnahme bei zu wenig Kühlflüssigkeit unterwegs?", "a": "Als Behelf Wasser nachfüllen und so schnell wie möglich in die Fachwerkstätte fahren.", "opts": ["Sofort Motoröl nachfüllen, weil Öl das Kühlmittel ersetzen kann", "Unverändert weiterfahren – das reguliert sich beim Abkühlen von selbst", "Als Behelf Wasser nachfüllen und so bald wie möglich in die Werkstatt fahren", "Bremsflüssigkeit nachfüllen und zum Kühlen das Fenster öffnen"], "correct": 2}, {"topic": "batterie", "q": "Was kontrollieren Sie an der Fahrzeugbatterie?", "a": "Saubere, festsitzende Pole, freie Entlüftungsbohrungen und bei wartbaren Batterien den Säurestand, sodass alle Bleiplatten bedeckt sind. Die meisten Batterien sind wartungsfrei (Kontrollanzeige beachten).", "opts": ["Den Ladezustand nur über eine kurze Fahrprobe mit eingeschalteten Verbrauchern", "Saubere, festsitzende Pole, freie Entlüftungen und Säure über den Bleiplatten", "Die Spannung, indem man einen Prüfstab zwischen die beiden Pole legt", "Den Elektrolytstand, der stets mit frischer Batteriesäure nachzufüllen ist"], "correct": 1}, {"topic": "batterie", "q": "Womit füllen Sie bei einer wartbaren Batterie verdunstetes Wasser nach?", "a": "Mit destilliertem Wasser, bis alle Bleiplatten wieder bedeckt sind.", "opts": ["Mit destilliertem Wasser, bis alle Bleiplatten wieder bedeckt sind", "Mit frischer Batteriesäure, bis der Höchststand erreicht ist", "Mit klarem Leitungswasser, das vorher abgekocht wurde", "Mit Kühlflüssigkeit, weil sie ähnliche Eigenschaften hat"], "correct": 0}, {"topic": "leuchten", "q": "Was bedeutet diese Kontrollleuchte und was ist zu tun?", "a": "Öldruckkontrolle (rot): Der Motor wird nicht mehr ausreichend geschmiert – Gefahr Kolbenreiber. Sofort auskuppeln, anhalten, Motor abstellen und den Ölstand kontrollieren. Keine Weiterfahrt.", "opts": ["Kühlmitteltemperatur: Motor überhitzt – anhalten, Kühlmittel und Keilriemen prüfen", "Ladekontrolle: Lichtmaschine lädt nicht – Keilriemen prüfen, Reparatur suchen", "Öldruckkontrolle: Motor wird nicht geschmiert – auskuppeln, anhalten, Motor abstellen, Öl prüfen", "Bremswarnung: zu wenig Bremsflüssigkeit – anhalten und Dichtheitsprobe durchführen"], "correct": 2, "img": "oil"}, {"topic": "leuchten", "q": "Was bedeutet diese rote Kontrollleuchte?", "a": "Ladekontrolle (rot): Die Lichtmaschine produziert keinen Strom mehr. Gefahr: Zusammenbruch der Elektrik nach Entladung der Batterie; bei gerissenem Keilriemen zusätzlich Ausfall der Kühlung. Temperatur beobachten, Keilriemen prüfen, Reparatur suchen.", "opts": ["Öldruck: Der Motor bekommt zu wenig Öldruck – sofort anhalten und Motor abstellen", "Vorglühanzeige beim Diesel – warten, bis sie erlischt, dann erst starten", "Feststellbremse ist angezogen – vor dem Losfahren die Handbremse lösen", "Ladekontrolle: Lichtmaschine liefert keinen Strom – Keilriemen prüfen, Temperatur beobachten"], "correct": 3, "img": "battery"}, {"topic": "leuchten", "q": "Was bedeutet diese Kontrollleuchte und was ist die Gefahr?", "a": "Temperaturwarnleuchte (rot): Der Motor wird nicht mehr ausreichend gekühlt. Gefahr Kolbenreiber durch Überhitzen. Sofort anhalten und Kühlmittel sowie Keilriemen der Wasserpumpe kontrollieren.", "opts": ["Öldruck: Der Ölstand ist zu niedrig – Gefahr Kolbenreiber; sofort Öl nachfüllen", "Kühlmitteltemperatur: Motor wird nicht gekühlt – Gefahr Kolbenreiber; anhalten, Kühlmittel prüfen", "Ladekontrolle: Die Batterie entlädt sich – Gefahr Stromausfall; Verbraucher abschalten", "Bremswarnung: Der Bremskreis ist undicht – Gefahr Bremsversagen; sofort anhalten"], "correct": 1, "img": "temp"}, {"topic": "leuchten", "q": "Was bedeutet diese rote Kontrollleuchte mit dem Ausrufezeichen im Kreis?", "a": "Bremswarnleuchte (rot): meist zu wenig Bremsflüssigkeit (oder Handbremse angezogen). Gefahr Bremsversagen. Anhalten und Dichtheitsprobe durchführen – ist die Anlage dicht, sind die Bremsbeläge zu erneuern.", "opts": ["Airbagfehler: Der Airbag löst im Notfall evtl. nicht aus – ab in die Werkstatt", "Öldruck: Der Motor wird nicht mehr geschmiert – anhalten und Motor abstellen", "Bremswarnung: meist zu wenig Bremsflüssigkeit – anhalten und Dichtheitsprobe machen", "Reifendruck: Ein Reifen hat zu wenig Druck – bei nächster Gelegenheit prüfen"], "correct": 2, "img": "brake"}, {"topic": "leuchten", "q": "Was bedeutet diese rote Kontrollleuchte mit dem 'P' im Kreis?", "a": "Die Feststellbremse (Handbremse) ist angezogen. Sofortmaßnahme: vor dem Losfahren die Handbremse lösen.", "opts": ["Der Parkassistent ist aktiv und sucht gerade eine Parklücke", "Die Feststellbremse (Handbremse) ist angezogen – vor dem Losfahren lösen", "Das Parklicht ist eingeschaltet und muss während der Fahrt aus", "Die Bremsbeläge sind abgenützt und müssen demnächst getauscht werden"], "correct": 1, "img": "park"}, {"topic": "leuchten", "q": "Was bedeutet diese gelbe Kontrollleuchte (Person mit Ball)?", "a": "Airbag: Die Airbagsteuerung meldet einen Fehler – im Notfall funktioniert der Airbag möglicherweise nicht. In einer Fachwerkstätte beheben lassen.", "opts": ["Der Beifahrerairbag ist deaktiviert, etwa für einen Kindersitz", "Ein Sicherheitsgurt eines Insassen ist noch nicht angelegt", "Der Sitz ist nicht richtig eingerastet und muss nachgestellt werden", "Airbag: Die Steuerung meldet einen Fehler – löst evtl. nicht aus; ab in die Werkstatt"], "correct": 3, "img": "airbag"}, {"topic": "leuchten", "q": "Was bedeutet diese gelbe Kontrollleuchte mit 'ABS'?", "a": "Das ABS (Antiblockiersystem) hat einen Defekt. Gefahr: Bei einer Notbremsung können die Räder blockieren. Die normale Bremse funktioniert weiter – in der Fachwerkstätte beheben lassen.", "opts": ["Die gesamte Bremsanlage ist ausgefallen – sofort anhalten und abschleppen lassen", "Das ABS ist defekt – Räder können bei Notbremsung blockieren; normale Bremse geht weiter", "Das ABS ist gerade aktiv, weil man auf glatter Fahrbahn bremst", "Der Bremsflüssigkeitsstand ist zu niedrig und muss nachgefüllt werden"], "correct": 1, "img": "abs"}, {"topic": "leuchten", "q": "Was bedeutet diese grüne blinkende Kontrollleuchte und worauf achten Sie?", "a": "Blinkerkontrollleuchte: leuchtet/blinkt, wenn der Blinker eingeschaltet ist. Auf das Intervall achten (ca. 1–2×/Sek.) – ein doppelt so schnelles Blinken deutet auf eine defekte Blinkerlampe hin.", "opts": ["Das Fahrzeug ist im Eco-Modus – die Anzeige signalisiert sparsames Fahren", "Das Standlicht ist eingeschaltet und muss bei Dunkelheit umgeschaltet werden", "Der Blinker ist an – aufs Intervall achten; doppelt so schnell heißt, eine Lampe ist defekt", "Der Tempomat ist aktiv und hält die eingestellte Geschwindigkeit"], "correct": 2, "img": "turn"}, {"topic": "leuchten", "q": "Was bedeutet diese blaue Kontrollleuchte?", "a": "Fernlichtkontrollleuchte: leuchtet, wenn das Fernlicht eingeschaltet ist. Bei Gegenverkehr rechtzeitig abblenden.", "opts": ["Die Nebelschlussleuchte ist eingeschaltet und muss bei besserer Sicht aus", "Die Klimaanlage kühlt gerade auf die eingestellte Temperatur herunter", "Das Abblendlicht ist an und passt die Leuchtweite automatisch an", "Das Fernlicht ist eingeschaltet – bei Gegenverkehr rechtzeitig abblenden"], "correct": 3, "img": "highbeam"}, {"topic": "innen", "q": "Wie stellen Sie Sitz und Lehne richtig ein?", "a": "Sitzhöhe für guten Überblick; bei durchgetretener Kupplung ist das Bein noch leicht abgewinkelt; Lehne ca. 110°; greift man das Lenkrad oben, ist der Arm noch leicht gewinkelt; ca. 25 cm Abstand Oberkörper–Lenkrad (Airbag).", "opts": ["So weit vorne wie möglich, damit man die Pedale mühelos mit gestrecktem Bein erreicht", "Guter Überblick; Bein bei durchgetretener Kupplung leicht gewinkelt; Lehne ~110°; ~25 cm zum Lenkrad", "Lehne senkrecht (90°) und Sitz ganz nach oben, um gut über das Lenkrad blicken zu können", "So weit hinten wie möglich, mit ganz durchgestreckten Armen am oberen Lenkradkranz"], "correct": 1}, {"topic": "innen", "q": "Wie stellen Sie die Kopfstütze richtig ein und warum?", "a": "Die Oberkante der Kopfstütze soll mit der Schädeloberkante abschließen, Abstand zum Kopf ca. eine Handbreite. Sie verhindert bei Auffahrunfällen Genickverletzungen.", "opts": ["Möglichst tief im Nacken, damit der Kopf frei beweglich bleibt", "So hoch wie möglich eingestellt, damit sie zu jeder Körpergröße passt", "Oberkante auf Höhe des Schädels, Abstand ca. eine Handbreite – schützt das Genick", "Direkt am Hinterkopf anliegend, damit sie im Alltag bequem ist"], "correct": 2}, {"topic": "innen", "q": "Worauf achten Sie beim Anlegen des Sicherheitsgurtes?", "a": "Dicke Jacken ausziehen; Höhe am Türholm passend einstellen; der Gurt darf nicht verdreht sein; nach dem Anlegen den Beckengurt straffen.", "opts": ["Dicke Jacken ausziehen, Höhe am Türholm einstellen, Gurt nicht verdreht, Beckengurt straffen", "Den Gurt bewusst etwas locker lassen, damit man sich frei bewegen kann", "Den Schultergurt unter dem Arm durchführen, wenn er am Hals scheuert", "Den Gurt nur bei Autobahnfahrten anlegen, innerorts ist er verzichtbar"], "correct": 0}, {"topic": "innen", "q": "Bis wann müssen Kinder mit einem Kindersitz gesichert werden?", "a": "Solange sie unter 14 Jahre und kleiner als 135 cm sind. Ab 135 cm dürfen sie den normalen Sicherheitsgurt verwenden.", "opts": ["Nur bis zum vollendeten 3. Lebensjahr, danach genügt der Gurt", "Solange sie unter 14 Jahre und kleiner als 135 cm sind", "Bis zum 12. Geburtstag, unabhängig von der Körpergröße", "Bis zu einer Körpergröße von 150 cm, unabhängig vom Alter"], "correct": 1}, {"topic": "innen", "q": "Wann darf ein Kindersitz gegen die Fahrtrichtung am Beifahrersitz stehen?", "a": "Nur wenn kein Beifahrerairbag vorhanden ist oder dieser deaktiviert ist.", "opts": ["Immer, solange das Kind kleiner als 135 cm ist", "Nur auf Fahrten mit weniger als 50 km/h innerorts", "Nur wenn kein Beifahrerairbag vorhanden oder dieser deaktiviert ist", "Grundsätzlich nie – rückwärts gerichtete Sitze sind vorne verboten"], "correct": 2}, {"topic": "innen", "q": "Wie stellen Sie den Innenspiegel richtig ein?", "a": "So, dass die Oberkante des Spiegels bündig mit der Oberkante der Heckscheibe abschließt.", "opts": ["So, dass man den rechten hinteren Kotflügel gerade noch sieht", "So, dass die Spiegeloberkante bündig mit der Oberkante der Heckscheibe abschließt", "So, dass man beide Rücksitze und die Kinder gut im Blick hat", "Leicht nach unten geneigt, um den Bereich direkt hinter dem Auto zu sehen"], "correct": 1}, {"topic": "innen", "q": "Wie stellen Sie die Außenspiegel richtig ein?", "a": "So, dass die Horizontgrenze im oberen Viertel des Spiegels verläuft und man noch ein kleines Stück vom eigenen Fahrzeug sieht.", "opts": ["So, dass man möglichst viel vom eigenen Fahrzeug seitlich im Spiegel sieht, um Abstand zu halten", "So weit nach außen gedreht, dass das eigene Auto im Spiegel gar nicht mehr zu sehen ist", "So, dass die Horizontgrenze genau in der Mitte des Spiegels verläuft und beide Seiten gleich zeigt", "So, dass der Horizont im oberen Viertel liegt und man die eigene Fahrzeugkante gerade noch sieht"], "correct": 3}, {"topic": "sonstiges", "q": "Welche Aufgabe hat der Keilriemen und was prüfen Sie daran?", "a": "Er treibt Lichtmaschine, Wasserpumpe, Servopumpe und Klimaanlage an – wichtig für Stromversorgung, Motorkühlung und Lenkung. Prüfen: Spannung (bei kaltem Motor, max. 1–1,5 cm eindrückbar) und Zustand (Risse, Bruchstellen).", "opts": ["Er verbindet Motor und Getriebe; prüfen: ob er sich von Hand leicht drehen lässt", "Er treibt Lichtmaschine, Wasser-, Servo- und Klimapumpe an; prüfen: Spannung (max. 1–1,5 cm) und Risse", "Er steuert die Ventile im Motor; prüfen: das Ventilspiel mit einer Fühlerlehre", "Er treibt ausschließlich die Klimaanlage an; prüfen: ob die Kühlung läuft"], "correct": 1}, {"topic": "sonstiges", "q": "Welche Ausrüstung müssen Sie mitführen und wo ist sie üblicherweise?", "a": "Verbandskasten und Pannendreieck (meist Kofferraum) sowie eine Warnweste (griffbereit im Innenraum, z. B. Handschuhfach oder unter dem Sitz).", "opts": ["Ein Feuerlöscher und ein Ersatzreifen, beide fest im Motorraum verschraubt und gesichert", "Nur ein Verbandskasten, der griffbereit im Handschuhfach mitzuführen ist, sonst nichts", "Verbandskasten und Pannendreieck (Kofferraum) sowie eine Warnweste (griffbereit im Innenraum)", "Ein Warndreieck und ein Abschleppseil, beide verstaut unter dem Beifahrersitz"], "correct": 2}, {"topic": "sonstiges", "q": "Warum soll die Warnweste im Innenraum und nicht im Kofferraum sein?", "a": "Damit man sie schon vor dem Aussteigen anlegen kann – bei einer Panne soll man nicht ungeschützt zum Kofferraum gehen müssen.", "opts": ["Damit man sie schon vor dem Aussteigen anlegen kann und nicht ungeschützt aussteigt", "Damit sie im Kofferraum nicht durch Gepäck verschmutzt oder beschädigt wird", "Weil im Kofferraum grundsätzlich kein Platz für Ausrüstung vorgesehen ist", "Weil sie im Innenraum bei Kälte geschmeidig bleibt und besser sichtbar ist"], "correct": 0}, {"topic": "sonstiges", "q": "Was ist die Begutachtungsplakette ('Pickerl') und wo ist sie angebracht?", "a": "Der Nachweis der wiederkehrenden §57a-Begutachtung (Verkehrs- und Betriebssicherheit). Sie sitzt vorne rechts an der Windschutzscheibe; an ihr liest man das Ende der Frist ab. Plakette und Gutachten sind öffentliche Urkunden.", "opts": ["Der Nachweis der Kfz-Haftpflichtversicherung; sie klebt hinten beim Kennzeichen", "Der Nachweis der §57a-Begutachtung; vorne rechts an der Windschutzscheibe, zeigt das Fristende", "Die Autobahnvignette; sie gehört links oben an die Windschutzscheibe", "Der Zulassungsnachweis; er wird mitgeführt und nicht angeklebt"], "correct": 1}, {"topic": "sonstiges", "q": "In welchen Abständen muss ein PKW zur wiederkehrenden Begutachtung?", "a": "Erstmals 3 Jahre nach der Erstzulassung, dann 2 Jahre nach der ersten Begutachtung, danach jährlich. Toleranz bei Überschreitung: maximal 4 Monate.", "opts": ["Jedes Jahr ab dem Kaufdatum des Fahrzeugs, ganz ohne Toleranz beim Ablauf der Frist", "Durchgehend alle 2 Jahre ab der Erstzulassung, unabhängig vom Alter des Fahrzeugs", "Erstmals nach 4 Jahren, danach alle 3 Jahre, mit einer Toleranz von bis zu 6 Monaten", "Erstmals 3 Jahre nach Erstzulassung, dann nach 2 Jahren, danach jährlich (Toleranz max. 4 Monate)"], "correct": 3}, {"topic": "sonstiges", "q": "Wozu dienen die Sicherungen im Fahrzeug und was ist mitzuführen?", "a": "Sicherungen verhindern einen Kabelbrand, der durch Kurzschlüsse entstehen kann – sie unterbrechen bei Überlast den Stromkreis. Ersatzsicherungen sollen mitgeführt werden.", "opts": ["Sie speichern Strom für den Startvorgang des Motors; ein Ersatzakku ist stets mitzuführen", "Sie verhindern bei Kurzschluss einen Kabelbrand, indem sie den Stromkreis unterbrechen; Ersatz mitführen", "Sie glätten die Spannung der Lichtmaschine; ein Ersatz-Spannungsregler ist mitzuführen", "Sie schützen die Zündkerzen vor elektrischer Überlastung; Ersatzkerzen sind mitzuführen"], "correct": 1}];
+const TOPICS = {"reifen": "Reifen & Räder", "bremsen": "Bremsanlage", "beleuchtung": "Beleuchtung", "signal": "Signal- & Warneinrichtungen", "lenkung": "Lenkung", "sicht": "Ausreichende Sicht", "fluessig": "Flüssigkeitsstände", "batterie": "Batterie", "leuchten": "Warn- & Kontrollleuchten", "innen": "Innenkontrollen", "sonstiges": "Sonstiges"};
+const IMAGES = {"park": "<svg viewBox=\"0 0 120 120\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\">\n<rect x=\"2\" y=\"2\" width=\"116\" height=\"116\" rx=\"18\" fill=\"#1c2128\"/>\n<g fill=\"none\" stroke=\"#ff4d4d\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n\n<circle cx=\"60\" cy=\"60\" r=\"24\"/>\n<path d=\"M30 40 A34 34 0 0 0 30 80\"/>\n<path d=\"M90 40 A34 34 0 0 1 90 80\"/>\n<text x=\"60\" y=\"70\" font-size=\"30\" font-family=\"Arial, sans-serif\" font-weight=\"bold\" fill=\"#ff4d4d\" stroke=\"none\" text-anchor=\"middle\">P</text>\n\n</g></svg>", "brake": "<svg viewBox=\"0 0 120 120\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\">\n<rect x=\"2\" y=\"2\" width=\"116\" height=\"116\" rx=\"18\" fill=\"#1c2128\"/>\n<g fill=\"none\" stroke=\"#ff4d4d\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n\n<circle cx=\"60\" cy=\"60\" r=\"24\"/>\n<path d=\"M30 40 A34 34 0 0 0 30 80\"/>\n<path d=\"M90 40 A34 34 0 0 1 90 80\"/>\n<line x1=\"60\" y1=\"46\" x2=\"60\" y2=\"64\"/>\n<circle cx=\"60\" cy=\"74\" r=\"1.5\" fill=\"#ff4d4d\"/>\n\n</g></svg>", "oil": "<svg viewBox=\"0 0 120 120\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\">\n<rect x=\"2\" y=\"2\" width=\"116\" height=\"116\" rx=\"18\" fill=\"#1c2128\"/>\n<g fill=\"none\" stroke=\"#ff4d4d\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n\n<path d=\"M28 74 h44 a6 6 0 0 0 6 -6 v-8 h10 l8 -8\"/>\n<path d=\"M28 74 v-14 a6 6 0 0 1 6 -6 h38 v20\"/>\n<path d=\"M40 54 v-8 h16 v8\"/>\n<path d=\"M92 60 q-6 8 -6 12 a6 6 0 0 0 12 0 q0 -4 -6 -12 z\" fill=\"#ff4d4d\" stroke=\"none\"/>\n\n</g></svg>", "battery": "<svg viewBox=\"0 0 120 120\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\">\n<rect x=\"2\" y=\"2\" width=\"116\" height=\"116\" rx=\"18\" fill=\"#1c2128\"/>\n<g fill=\"none\" stroke=\"#ff4d4d\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n\n<rect x=\"24\" y=\"42\" width=\"72\" height=\"42\" rx=\"4\"/>\n<rect x=\"38\" y=\"34\" width=\"12\" height=\"8\"/>\n<rect x=\"70\" y=\"34\" width=\"12\" height=\"8\"/>\n<line x1=\"40\" y1=\"63\" x2=\"52\" y2=\"63\"/>\n<line x1=\"46\" y1=\"57\" x2=\"46\" y2=\"69\"/>\n<line x1=\"70\" y1=\"63\" x2=\"82\" y2=\"63\"/>\n\n</g></svg>", "temp": "<svg viewBox=\"0 0 120 120\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\">\n<rect x=\"2\" y=\"2\" width=\"116\" height=\"116\" rx=\"18\" fill=\"#1c2128\"/>\n<g fill=\"none\" stroke=\"#ff4d4d\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n\n<path d=\"M60 30 v34\"/>\n<circle cx=\"60\" cy=\"74\" r=\"10\"/>\n<line x1=\"70\" y1=\"40\" x2=\"80\" y2=\"40\"/>\n<line x1=\"70\" y1=\"52\" x2=\"80\" y2=\"52\"/>\n<path d=\"M20 92 q6 -8 12 0 t12 0 t12 0 t12 0 t12 0\" />\n\n</g></svg>", "airbag": "<svg viewBox=\"0 0 120 120\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\">\n<rect x=\"2\" y=\"2\" width=\"116\" height=\"116\" rx=\"18\" fill=\"#1c2128\"/>\n<g fill=\"none\" stroke=\"#ffb020\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n\n<circle cx=\"40\" cy=\"40\" r=\"10\"/>\n<path d=\"M40 52 v20 h30\"/>\n<circle cx=\"78\" cy=\"66\" r=\"16\"/>\n\n</g></svg>", "abs": "<svg viewBox=\"0 0 120 120\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\">\n<rect x=\"2\" y=\"2\" width=\"116\" height=\"116\" rx=\"18\" fill=\"#1c2128\"/>\n<g fill=\"none\" stroke=\"#ffb020\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n\n<circle cx=\"60\" cy=\"60\" r=\"26\"/>\n<circle cx=\"60\" cy=\"60\" r=\"38\" stroke-dasharray=\"6 8\"/>\n<text x=\"60\" y=\"70\" font-size=\"24\" font-family=\"Arial, sans-serif\" font-weight=\"bold\" fill=\"#ffb020\" stroke=\"none\" text-anchor=\"middle\">ABS</text>\n\n</g></svg>", "turn": "<svg viewBox=\"0 0 120 120\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\">\n<rect x=\"2\" y=\"2\" width=\"116\" height=\"116\" rx=\"18\" fill=\"#1c2128\"/>\n<g fill=\"none\" stroke=\"#38d66b\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n\n<path d=\"M44 42 L26 60 L44 78\" />\n<path d=\"M40 60 h6\"/>\n<path d=\"M76 42 L94 60 L76 78\" />\n<path d=\"M74 60 h6\"/>\n\n</g></svg>", "highbeam": "<svg viewBox=\"0 0 120 120\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\">\n<rect x=\"2\" y=\"2\" width=\"116\" height=\"116\" rx=\"18\" fill=\"#1c2128\"/>\n<g fill=\"none\" stroke=\"#4d9bff\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n\n<path d=\"M40 34 a30 30 0 0 1 0 52 z\" fill=\"#4d9bff\" stroke=\"none\"/>\n<line x1=\"58\" y1=\"42\" x2=\"92\" y2=\"42\"/>\n<line x1=\"58\" y1=\"54\" x2=\"92\" y2=\"54\"/>\n<line x1=\"58\" y1=\"66\" x2=\"92\" y2=\"66\"/>\n<line x1=\"58\" y1=\"78\" x2=\"92\" y2=\"78\"/>\n\n</g></svg>", "pedal": "<svg viewBox=\"0 0 260 170\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Arial, sans-serif\">\n<rect x=\"2\" y=\"2\" width=\"256\" height=\"166\" rx=\"10\" fill=\"#f4f6fb\" stroke=\"#d3d9e6\"/>\n<line x1=\"40\" y1=\"150\" x2=\"220\" y2=\"150\" stroke=\"#8a97b8\" stroke-width=\"3\"/>\n<g stroke=\"#37527a\" stroke-width=\"8\" fill=\"none\" stroke-linecap=\"round\">\n<line x1=\"70\" y1=\"150\" x2=\"90\" y2=\"60\"/>\n<line x1=\"90\" y1=\"60\" x2=\"120\" y2=\"45\"/>\n</g>\n<g stroke=\"#c94b4b\" stroke-width=\"8\" fill=\"none\" stroke-linecap=\"round\" opacity=\"0.55\">\n<line x1=\"86\" y1=\"150\" x2=\"104\" y2=\"70\"/>\n<line x1=\"104\" y1=\"70\" x2=\"134\" y2=\"55\"/>\n</g>\n<path d=\"M118 40 h44\" stroke=\"#c94b4b\" stroke-width=\"2\"/>\n<text x=\"140\" y=\"30\" font-size=\"15\" fill=\"#c94b4b\" font-weight=\"bold\" text-anchor=\"middle\">2–3 cm</text>\n<text x=\"130\" y=\"164\" font-size=\"12\" fill=\"#4a5878\" text-anchor=\"middle\">Totgang, dann fester Widerstand</text>\n</svg>"};
+
+const $ = id => document.getElementById(id);
+const state = { mode:"mc", topic:"alle", len:20, deck:[], i:0, correct:0, known:0, answered:false, revealed:false };
+
+// ---- persistence (best effort) ----
+try{ const s=JSON.parse(localStorage.getItem("fzc")||"{}");
+  if(s.mode) state.mode=s.mode; if(s.topic) state.topic=s.topic; if(typeof s.len==="number") state.len=s.len; }catch(e){}
+function save(){ try{ localStorage.setItem("fzc",JSON.stringify({mode:state.mode,topic:state.topic,len:state.len})); }catch(e){} }
+
+// ---- build start-screen controls ----
+function buildTopicChips(){
+  const wrap=$("chipsTopic");
+  const entries=[["alle","Alle"]].concat(Object.keys(TOPICS).map(k=>[k,TOPICS[k]]));
+  wrap.innerHTML="";
+  entries.forEach(([k,label])=>{
+    const b=document.createElement("button");
+    b.className="chip"; b.dataset.topic=k; b.textContent=label;
+    b.setAttribute("aria-pressed", String(k===state.topic));
+    b.onclick=()=>{ state.topic=k; syncPressed(wrap,"topic",k); save(); };
+    wrap.appendChild(b);
+  });
+}
+function syncPressed(wrap,attr,val){
+  [...wrap.children].forEach(c=>c.setAttribute("aria-pressed", String(c.dataset[attr]===String(val))));
+}
+$("segMode").querySelectorAll("button").forEach(b=>{
+  b.onclick=()=>{ state.mode=b.dataset.mode;
+    $("segMode").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+    save(); };
+});
+$("chipsLen").querySelectorAll("button").forEach(b=>{
+  b.onclick=()=>{ state.len=+b.dataset.len; syncPressed($("chipsLen"),"len",state.len); save(); };
+});
+function initStart(){
+  $("segMode").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.mode===state.mode)));
+  syncPressed($("chipsLen"),"len",state.len);
+  buildTopicChips();
+}
+
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+// ---- flow ----
+function start(){
+  let pool = state.topic==="alle" ? QUESTIONS : QUESTIONS.filter(q=>q.topic===state.topic);
+  pool = shuffle(pool);
+  if(state.len>0) pool = pool.slice(0, state.len);
+  state.deck=pool; state.i=0; state.correct=0; state.known=0;
+  $("start").hidden=true; $("end").hidden=true; $("quiz").hidden=false; $("hud").hidden=false;
+  render();
+}
+function render(){
+  const q=state.deck[state.i]; state.answered=false; state.revealed=false;
+  $("count").textContent=(state.i+1)+" / "+state.deck.length;
+  $("barfill").style.width=((state.i)/state.deck.length*100)+"%";
+  $("score").textContent = state.mode==="mc" ? (state.correct+" ✓") : (state.known+" ✓");
+  $("qtopic").textContent=TOPICS[q.topic];
+  $("qtext").textContent=q.q;
+  // image
+  $("imgSlot").innerHTML = q.img && IMAGES[q.img]
+    ? '<div class="imgframe'+(q.img==="pedal"?" wide":"")+'">'+IMAGES[q.img]+'</div>' : "";
+  $("explainSlot").innerHTML="";
+  const card=$("flashcard"); card.style.transform="";
+  if(state.mode==="mc") renderMC(q); else renderFlash(q);
+}
+
+function renderMC(q){
+  $("flipSlot").innerHTML="";
+  const order=shuffle(q.opts.map((t,idx)=>({t,idx})));
+  const keys=["A","B","C","D"];
+  const box=document.createElement("div"); box.className="opts";
+  order.forEach((o,pos)=>{
+    const b=document.createElement("button"); b.className="opt"; b.dataset.idx=o.idx;
+    b.innerHTML='<span class="key">'+keys[pos]+'</span><span>'+escapeHtml(o.t)+'</span>';
+    b.onclick=()=>answerMC(q,b,o.idx,box);
+    box.appendChild(b);
+  });
+  $("mcSlot").innerHTML=""; $("mcSlot").appendChild(box);
+  setActions([{label:"Weiter",cls:"primary",id:"next",disabled:true,fn:next}]);
+}
+function answerMC(q,btn,idx,box){
+  if(state.answered) return; state.answered=true;
+  const right = idx===q.correct;
+  if(right){ btn.classList.add("correct"); state.correct++; }
+  else{ btn.classList.add("wrong"); }
+  [...box.children].forEach(c=>{ c.disabled=true;
+    if(+c.dataset.idx===q.correct) c.classList.add("correct"); });
+  $("score").textContent=state.correct+" ✓";
+  $("explainSlot").innerHTML='<div class="explain"><b>'+(right?"Richtig.":"Erklärung:")+'</b> '+escapeHtml(q.a)+'</div>';
+  const nb=$("next"); if(nb){ nb.disabled=false; nb.focus(); }
+}
+
+function renderFlash(q){
+  $("mcSlot").innerHTML="";
+  $("flipSlot").innerHTML='<div class="flip-hint">↻ Tippe auf die Karte oder „Antwort zeigen“</div>';
+  const card=$("flashcard");
+  card.onclick=()=>{ if(!state.revealed) revealFlash(q); };
+  setActions([
+    {label:"Antwort zeigen",cls:"primary",id:"reveal",fn:()=>revealFlash(q)}
+  ]);
+}
+function revealFlash(q){
+  if(state.revealed) return; state.revealed=true;
+  const card=$("flashcard");
+  const swap=()=>{
+    $("flipSlot").innerHTML='<div class="answer"><div class="ahead">Antwort</div>'+escapeHtml(q.a)+'</div>';
+    card.style.transform="";
+  };
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce){ swap(); }
+  else{ card.style.transform="rotateY(90deg)"; setTimeout(()=>{ swap(); }, 170); }
+  setActions([
+    {label:"Nochmal üben",cls:"ghost",id:"nokn",fn:()=>{ next(); }},
+    {label:"Gewusst",cls:"primary",id:"kn",fn:()=>{ state.known++; $("score").textContent=state.known+" ✓"; next(); }}
+  ]);
+}
+
+function setActions(list){
+  const wrap=$("actions"); wrap.innerHTML="";
+  list.forEach(a=>{
+    const b=document.createElement("button");
+    b.className="btn "+(a.cls||""); b.id=a.id; b.textContent=a.label;
+    if(a.disabled) b.disabled=true; b.onclick=a.fn; wrap.appendChild(b);
+  });
+}
+function next(){
+  if(state.i>=state.deck.length-1){ finish(); return; }
+  state.i++; render();
+}
+function finish(){
+  $("quiz").hidden=true; $("hud").hidden=true; $("end").hidden=false;
+  $("barfill").style.width="100%";
+  const total=state.deck.length;
+  if(state.mode==="mc"){
+    const pct=Math.round(state.correct/total*100);
+    drawRing(pct);
+    $("endTitle").textContent = pct>=80?"Stark!" : pct>=50?"Weiter üben." : "Dranbleiben.";
+    $("endSub").textContent = state.correct+" von "+total+" richtig ("+pct+"%).";
+  }else{
+    const pct=Math.round(state.known/total*100);
+    drawRing(pct);
+    $("endTitle").textContent="Durchgearbeitet!";
+    $("endSub").textContent = state.known+" von "+total+" Karten gewusst.";
+  }
+}
+function drawRing(pct){
+  const r=52,c=2*Math.PI*r, off=c*(1-pct/100);
+  const col = pct>=80?"var(--good)":pct>=50?"var(--amber)":"var(--bad)";
+  $("ring").innerHTML=
+    '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="var(--line)" stroke-width="12"/>'+
+    '<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="12" '+
+    'stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'" '+
+    'transform="rotate(-90 60 60)"/>'+
+    '<text x="60" y="68" text-anchor="middle" font-size="30" font-weight="700">'+pct+'%</text>';
+}
+function toMenu(){ $("end").hidden=true; $("quiz").hidden=true; $("hud").hidden=true; $("start").hidden=false; }
+
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m])); }
+
+// keyboard
+document.addEventListener("keydown",e=>{
+  if(!$("quiz").hidden){
+    if(state.mode==="mc"){
+      if(!state.answered && /^[1-4]$/.test(e.key)){
+        const opts=$("mcSlot").querySelectorAll(".opt"); const b=opts[+e.key-1]; if(b){ b.click(); e.preventDefault(); }
+      }else if(state.answered && (e.key==="Enter"||e.key===" ")){ const n=$("next"); if(n&&!n.disabled){n.click();e.preventDefault();} }
+    }else{
+      if((e.key===" "||e.key==="Enter")){ const r=$("reveal"); if(r){r.click();e.preventDefault();}
+        else { const k=$("kn"); if(k){k.click();e.preventDefault();} } }
+    }
+  }
+});
+
+$("startBtn").onclick=start;
+$("again").onclick=start;
+$("toMenu").onclick=toMenu;
+initStart();
+</script>
+</body></html>
